@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Você preserva a Biodiversidade?</title>
+    <style>
+        /* Estilos do quiz */
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            color: #388e3c;
+        }
+
+        button {
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #388e3c;
+        }
+
+        .container {
+            display: block;
+            height: 100vh;
+        }
+
+        .quiz-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        .quiz-title {
+            border: 4px solid #4CAF50;
+            padding: 20px 40px;
+            border-radius: 10px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+
+        .quiz-main {
+            margin-top: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .question-block {
+            background: #fff;
+            border: 4px solid #4CAF50;
+            border-radius: 10px;
+            padding: 32px 40px;
+            margin-bottom: 32px;
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .option-label {
+            font-size: 1.1rem;
+            font-weight: normal;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button {
+            margin-top: 24px;
+            padding: 12px 32px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: none;
+            background: #4CAF50;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .result-block {
+            margin-top: 40px;
+            padding: 32px 40px;
+            background: #e8f5e9;
+            border: 3px solid #388e3c;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 1.2rem;
+            color: #1b5e20;
+            box-shadow: 0 2px 8px rgba(60, 120, 60, 0.08);
+        }
+
+        .quiz-footer {
+            margin-top: 48px;
+            padding: 16px 0;
+            text-align: center;
+            font-size: 1rem;
+            color: #388e3c;
+            background: #f9f9f9;
+            border-top: 2px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="quiz-header">
+            <h1 class="quiz-title">
+                Você preserva a biodiversidade?
+            </h1>
+        </header>
+
+        <main class="quiz-main">
+            <div id="question-container" class="question-block">
+                </div>
+            <button id="next-button" style="display: none;">Próxima</button>
+            <button id="submit-button" style="display: none;">Enviar</button>
+
+            <div id="result-container" class="result-block" style="display: none;">
+                <h2>Resultado</h2>
+                <p id="result-message"></p>
+            </div>
+        </main>
+
+        <footer id="quiz-footer" class="quiz-footer" style="display: none;">
+            <p>Quiz elaborado por Gabriela, Manuela, Maria Gabriela, Maria Julia e Elena</p>
+        </footer>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                text: "Quando você compra produtos, você dá preferência para aqueles que são sustentáveis ou certificados como eco-friendly?",
+                options: ["Sempre", "Às vezes", "Nunca"]
+            },
+            {
+                text: "Você costuma separar e reciclar seu lixo doméstico?",
+                options: ["Sim, sempre", "Às vezes", "Não"]
+            },
+            {
+                text: "Você evita o consumo de produtos que causam impacto negativo ao meio ambiente, como plásticos descartáveis ou produtos que desmatam?",
+                options: ["Sim, evito ao máximo", "Às vezes penso nisso", "Não me preocupo com isso"]
+            },
+            {
+                text: "Você apoia ou participa de ações de preservação ambiental, como plantio de árvores, limpeza de rios ou campanhas?",
+                options: ["Sim, participo sempre que posso", "Já participei algumas vezes", "Nunca participei"]
+            },
+            {
+                text: "Você costuma se informar sobre questões ambientais e biodiversidade?",
+                options: ["Sim, acompanho notícias e estudos", "Às vezes leio algo sobre o assunto", "Não tenho interesse"]
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        const answers = Array(questions.length).fill('');
+
+        // Referências aos elementos HTML
+        const questionContainer = document.getElementById('question-container');
+        const nextButton = document.getElementById('next-button');
+        const submitButton = document.getElementById('submit-button');
+        const resultContainer = document.getElementById('result-container');
+        const resultMessage = document.getElementById('result-message');
+        const quizFooter = document.getElementById('quiz-footer');
+
+        // Função para renderizar a pergunta atual
+        function renderQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                return; // Não há mais perguntas
+            }
+
+            const question = questions[currentQuestionIndex];
+            const questionHtml = `
+                <p class="question-text">${currentQuestionIndex + 1}. ${question.text}</p>
+                <div class="options">
+                    ${question.options.map((option, oIdx) => `
+                        <label class="option-label">
+                            <input type="radio" name="q${currentQuestionIndex}" value="${option}" />
+                            ${option}
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+            questionContainer.innerHTML = questionHtml;
+
+            // Adiciona um listener para atualizar a resposta
+            const radioButtons = document.querySelectorAll(`input[name="q${currentQuestionIndex}"]`);
+            radioButtons.forEach(radio => {
+                radio.addEventListener('change', (event) => {
+                    answers[currentQuestionIndex] = event.target.value;
+                    updateButtons();
+                });
+            });
+
+            // Restaura a seleção se o usuário voltar
+            if (answers[currentQuestionIndex]) {
+                document.querySelector(`input[value="${answers[currentQuestionIndex]}"]`).checked = true;
+            }
+
+            updateButtons();
+        }
+
+        // Função para mostrar/esconder os botões
+        function updateButtons() {
+            const hasAnswered = answers[currentQuestionIndex] !== '';
+            const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
+            if (hasAnswered && !isLastQuestion) {
+                nextButton.style.display = 'block';
+                submitButton.style.display = 'none';
+            } else if (hasAnswered && isLastQuestion) {
+                nextButton.style.display = 'none';
+                submitButton.style.display = 'block';
+            } else {
+                nextButton.style.display = 'none';
+                submitButton.style.display = 'none';
+            }
+        }
+
+        // Evento para o botão "Próxima"
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            renderQuestion();
+        });
+
+        // Evento para o botão "Enviar"
+        submitButton.addEventListener('click', () => {
+            const mapped = answers.map((ans, idx) => {
+                const q = questions[idx];
+                if (q && q.options[0] === ans) return 'a';
+                if (q && q.options[1] === ans) return 'b';
+                return 'c';
+            });
+
+            const counts = { a: 0, b: 0, c: 0 };
+            mapped.forEach(l => { counts[l]++; });
+
+            const max = Math.max(counts.a, counts.b, counts.c);
+            const majorities = Object.keys(counts).filter(k => counts[k] === max);
+
+            let message = '';
+            if (majorities.length > 1) {
+                message = 'Seu perfil está equilibrado entre as opções! Isso mostra que você tem atitudes variadas em relação à biodiversidade. Que tal buscar evoluir ainda mais e adotar práticas mais sustentáveis no seu dia a dia?';
+            } else if (majorities[0] === 'a') {
+                message = 'Você é um defensor da biodiversidade! Suas atitudes mostram que você se preocupa e age para preservar o meio ambiente e os seres vivos que nele habitam. Continue assim! 🌿🐾';
+            } else if (majorities[0] === 'b') {
+                message = 'Você tem consciência ambiental, mas pode melhorar. Pequenas mudanças no dia a dia podem fazer uma grande diferença para a biodiversidade. Que tal começar a adotar mais práticas sustentáveis? 🌱';
+            } else {
+                message = 'Parece que você ainda não está muito engajado na preservação da biodiversidade. Que tal refletir sobre como pequenas ações podem ajudar o planeta e todos os seres que vivem nele? Sempre há tempo para mudar!';
+            }
+
+            // Esconde os elementos do quiz e exibe o resultado
+            questionContainer.style.display = 'none';
+            nextButton.style.display = 'none';
+            submitButton.style.display = 'none';
+            resultContainer.style.display = 'block';
+            resultMessage.textContent = message;
+            quizFooter.style.display = 'block';
+        });
+
+        // Inicializa o quiz
+        renderQuestion();
+    </script>
+
+</body>
+</html>
